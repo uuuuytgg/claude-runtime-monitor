@@ -1,0 +1,92 @@
+/* Claude Runtime Monitor design tokens */
+
+:root {
+  --brand-coral: #cc785c;
+  --brand-coral-active: #a85f48;
+  --brand-amber: #d99742;
+  --brand-teal: #3f9f78;
+  --brand-ink: #1f1b16;
+
+  --bg-root: #eee7db;
+  --bg-main: #f7f3ea;
+  --bg-elevated: #fffdf8;
+  --bg-panel: rgba(255, 253, 248, 0.82);
+  --bg-hover: rgba(204, 120, 92, 0.08);
+  --bg-callout: rgba(204, 120, 92, 0.12);
+
+  --line-subtle: rgba(31, 27, 22, 0.08);
+  --line-visible: rgba(31, 27, 22, 0.14);
+  --line-active: rgba(204, 120, 92, 0.38);
+
+  --text-primary: #1f1b16;
+  --text-secondary: #665f55;
+  --text-muted: #8d8377;
+  --text-accent: #b7664d;
+
+  --state-idle: #3f9f78;
+  --state-thinking: #cc785c;
+  --state-editing: #d99742;
+  --state-command: #6f6a62;
+  --state-warning: #d99742;
+  --state-critical: #b9473d;
+  --state-offline: #aaa197;
+  --state-success: #3f9f78;
+
+  --glow-coral: rgba(204, 120, 92, 0.22);
+  --glow-amber: rgba(217, 151, 66, 0.24);
+  --glow-teal: rgba(63, 159, 120, 0.2);
+  --glow-blue: rgba(63, 159, 120, 0.16);
+  --glow-critical: rgba(185, 71, 61, 0.22);
+
+  --font-display: "Georgia", "Times New Roman", "Songti SC", serif;
+  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui,
+    -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "SFMono-Regular", monospace;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.45rem;
+  --text-4xl: 3rem;
+
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-24: 96px;
+
+  --shadow-panel: 0 18px 60px rgba(49, 39, 28, 0.08);
+  --shadow-elevated: 0 18px 36px rgba(49, 39, 28, 0.12);
+  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}

@@ -1,0 +1,29 @@
+/* AI Core Mesh 背景 */
+.ai-core-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 280px;
+  overflow: hidden;
+}
+
+.ai-core-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ai-core-label {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding-bottom: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}

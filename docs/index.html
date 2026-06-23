@@ -1,0 +1,376 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claude Runtime Monitor</title>
+  <meta name="description" content="Local-first runtime and quota monitor for Claude Code." />
+  <style>
+    :root {
+      color-scheme: light;
+      --brand-coral: #cc785c;
+      --brand-coral-active: #a85f48;
+      --brand-amber: #d99742;
+      --brand-teal: #3f9f78;
+      --brand-ink: #1f1b16;
+      --bg-root: #eee7db;
+      --bg-main: #f7f3ea;
+      --bg-panel: rgba(255, 253, 248, 0.82);
+      --bg-hover: rgba(204, 120, 92, 0.08);
+      --line-subtle: rgba(31, 27, 22, 0.08);
+      --line-visible: rgba(31, 27, 22, 0.14);
+      --line-active: rgba(204, 120, 92, 0.38);
+      --text-primary: #1f1b16;
+      --text-secondary: #665f55;
+      --text-muted: #8d8377;
+      --shadow-panel: 0 18px 60px rgba(49, 39, 28, 0.08);
+      --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      --font-display: Georgia, "Times New Roman", "Songti SC", serif;
+      --font-sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", "Cascadia Code", SFMono-Regular, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--bg-root); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      background:
+        radial-gradient(circle at 33% 0%, rgba(204, 120, 92, 0.12), transparent 28%),
+        linear-gradient(180deg, #fffaf2 0%, var(--bg-main) 38%, #efe7db 100%);
+      letter-spacing: 0;
+    }
+    a { color: inherit; }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 12px;
+      border-right: 1px solid var(--line-subtle);
+      background: rgba(255, 253, 248, 0.62);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 8px;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: repeating-conic-gradient(from 0deg, var(--brand-coral) 0deg 10deg, transparent 10deg 22deg);
+      box-shadow: 0 0 0 5px rgba(204, 120, 92, 0.08);
+      flex: 0 0 auto;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-item {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .sidebar-item.active, .sidebar-item:hover {
+      color: var(--brand-coral-active);
+      background: var(--bg-hover);
+      border-color: rgba(204, 120, 92, 0.14);
+    }
+    .glyph { width: 8px; height: 8px; border: 1.5px solid currentColor; border-radius: 3px; opacity: 0.72; }
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border: 1px solid var(--line-subtle);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font: 12px var(--font-mono);
+      background: rgba(255, 253, 248, 0.58);
+    }
+
+    main {
+      width: min(100%, 1480px);
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    .hero-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 74px;
+      padding: 14px 18px;
+      background: rgba(255, 253, 248, 0.78);
+      border: 1px solid var(--line-active);
+      border-radius: 10px;
+      box-shadow: var(--inner-highlight), 0 12px 32px rgba(49, 39, 28, 0.06);
+      backdrop-filter: blur(18px);
+      margin-bottom: 26px;
+    }
+    .status-left, .status-meta { display: flex; align-items: center; gap: 12px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand-teal); box-shadow: 0 0 0 5px rgba(63, 159, 120, 0.12); }
+    .status-meta { flex-wrap: wrap; justify-content: flex-end; color: var(--text-muted); font: 12px var(--font-mono); }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 1.1fr) minmax(210px, 0.8fr) minmax(210px, 0.8fr) minmax(210px, 0.8fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--line-subtle);
+      border-radius: 10px;
+      box-shadow: var(--inner-highlight), var(--shadow-panel);
+      padding: 22px;
+      min-width: 0;
+    }
+    .panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    .soft-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: rgba(63, 159, 120, 0.1);
+      color: #2f7d5d;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .grid-ai-core { grid-column: 1 / 2; grid-row: 1 / 4; min-height: 656px; display: flex; flex-direction: column; }
+    .grid-current { grid-column: 2 / 4; min-height: 280px; }
+    .grid-model { grid-column: 4 / 5; min-height: 280px; }
+    .grid-quota { grid-column: 2 / 3; }
+    .grid-context { grid-column: 3 / 4; }
+    .grid-cost { grid-column: 4 / 5; }
+    .grid-events { grid-column: 2 / 5; }
+    .grid-connect { grid-column: 1 / 5; margin-top: 8px; }
+
+    .pet-stage {
+      position: relative;
+      flex: 1;
+      min-height: 290px;
+      display: grid;
+      place-items: center;
+    }
+    .pet-glow {
+      position: absolute;
+      width: 220px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(204, 120, 92, 0.18), transparent 70%);
+      filter: blur(4px);
+    }
+    .pet {
+      position: relative;
+      width: 190px;
+      height: 146px;
+      animation: idle 3.4s ease-in-out infinite;
+    }
+    .pet-body {
+      position: absolute;
+      left: 62px;
+      top: 58px;
+      width: 68px;
+      height: 70px;
+      border: 4px solid #4a2720;
+      border-radius: 42% 42% 34% 34%;
+      background: #fffaf6;
+      z-index: 2;
+    }
+    .pet-head {
+      position: absolute;
+      left: 45px;
+      top: 30px;
+      width: 102px;
+      height: 70px;
+      border: 4px solid #4a2720;
+      border-radius: 48% 48% 42% 42%;
+      background: #fffaf6;
+      z-index: 4;
+    }
+    .ear { position: absolute; top: 42px; width: 72px; height: 34px; border: 4px solid #4a2720; background: #fffaf6; z-index: 1; }
+    .ear.left { left: 5px; border-radius: 70% 20% 50% 60%; transform: rotate(-10deg); }
+    .ear.right { right: 5px; border-radius: 20% 70% 60% 50%; transform: rotate(10deg); }
+    .eye { position: absolute; top: 58px; width: 8px; height: 18px; border-radius: 99px; background: #20c5ef; z-index: 5; }
+    .eye.left { left: 77px; } .eye.right { right: 77px; }
+    .blush { position: absolute; top: 76px; width: 24px; height: 15px; border-radius: 50%; background: rgba(255, 154, 178, 0.55); z-index: 5; }
+    .blush.left { left: 58px; } .blush.right { right: 58px; }
+    .mouth { position: absolute; left: 88px; top: 77px; z-index: 6; color: #4a2720; font: 700 15px var(--font-mono); }
+    .hand { position: absolute; top: 94px; width: 18px; height: 30px; border: 4px solid #4a2720; border-radius: 99px; background: #fffaf6; z-index: 6; }
+    .hand.left { left: 62px; transform: rotate(-18deg); } .hand.right { right: 62px; transform: rotate(18deg); }
+    .state-strip { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; margin: 10px 0 16px; }
+    .chip { padding: 2px 8px; border-radius: 4px; background: rgba(31, 27, 22, 0.06); color: var(--text-muted); font: 11px var(--font-mono); }
+    .chip.active { background: var(--brand-coral); color: #fff; }
+    .avatars { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line-subtle); }
+    .avatar-dot { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-subtle); display: grid; place-items: center; background: rgba(255,253,248,.65); font-family: var(--font-display); color: var(--text-secondary); }
+    .avatar-dot.active { border: 2px solid var(--brand-coral); background: repeating-conic-gradient(var(--brand-coral) 0deg 10deg, transparent 10deg 22deg); }
+
+    .display-title { margin-top: 10px; font: 400 38px/1.15 var(--font-display); }
+    .mono { font-family: var(--font-mono); color: var(--text-secondary); }
+    .label { color: var(--text-muted); font-size: 13px; margin: 16px 0 4px; }
+    .quota-amount { font: 400 54px/1 var(--font-display); color: var(--brand-amber); margin-top: 24px; }
+    .meter { width: 100%; height: 8px; border-radius: 999px; background: rgba(31,27,22,.1); overflow: hidden; margin: 26px 0 24px; }
+    .meter span { display: block; width: 16%; height: 100%; background: var(--brand-teal); border-radius: inherit; }
+    .cost { font: 400 34px/1 var(--font-display); margin-top: 22px; }
+    .event-list { border-top: 1px solid var(--line-subtle); }
+    .event-row { display: grid; grid-template-columns: 88px 132px 1fr; gap: 16px; align-items: center; min-height: 54px; border-bottom: 1px solid var(--line-subtle); color: var(--text-secondary); font-size: 14px; }
+    .event-badge { justify-self: start; padding: 3px 12px; border-radius: 999px; background: rgba(31,27,22,.07); color: var(--text-secondary); font-size: 12px; }
+
+    .intro-section { padding: 86px 0 24px; }
+    .intro-section h1, .intro-section h2 { max-width: 920px; margin: 0; font: 400 clamp(42px, 6vw, 88px)/.98 var(--font-display); }
+    .intro-section p { max-width: 760px; color: var(--text-secondary); font-size: 18px; line-height: 1.75; margin: 24px 0 0; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid var(--brand-ink); background: var(--brand-ink); color: #fffaf2; text-decoration: none; font-weight: 700; border-radius: 8px; }
+    .button.secondary { background: transparent; color: var(--brand-ink); }
+    .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 34px; background: var(--line-subtle); border: 1px solid var(--line-subtle); }
+    .feature { min-height: 210px; padding: 24px; background: rgba(255, 253, 248, 0.7); }
+    .feature strong { display: block; margin-bottom: 48px; color: var(--brand-coral-active); font: 700 12px var(--font-mono); }
+    .feature h3 { margin: 0 0 14px; font-size: 18px; }
+    .feature p { margin: 0; color: var(--text-secondary); line-height: 1.65; font-size: 15px; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 34px; border: 1px solid var(--brand-ink); background: rgba(255,253,248,.72); }
+    .flow div { min-height: 146px; padding: 22px; border-right: 1px solid var(--line-subtle); }
+    .flow div:last-child { border-right: 0; }
+    .flow b { display: block; margin-bottom: 18px; }
+    .flow span { color: var(--text-secondary); line-height: 1.55; font-size: 14px; }
+    .connect-preview { display: grid; grid-template-columns: .85fr 1.15fr; gap: 22px; align-items: start; }
+    pre { margin: 0; overflow: auto; border: 1px solid var(--line-subtle); border-radius: 8px; background: rgba(31,27,22,.045); padding: 22px; font: 13px/1.7 var(--font-mono); color: var(--text-primary); }
+    footer { padding: 50px 0 20px; color: var(--text-muted); font-size: 13px; display: flex; justify-content: space-between; gap: 18px; }
+
+    @keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; padding: 18px 20px 0; border-right: 0; border-bottom: 1px solid var(--line-subtle); }
+      .sidebar-nav { flex-direction: row; overflow-x: auto; padding-bottom: 12px; }
+      .sidebar-footer { display: none; }
+      .dashboard-grid { grid-template-columns: 1fr 1fr; }
+      .grid-ai-core, .grid-current, .grid-events, .grid-connect { grid-column: 1 / 3; }
+      .grid-model, .grid-quota, .grid-context, .grid-cost { grid-column: auto; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow { grid-template-columns: 1fr; }
+      .flow div { border-right: 0; border-bottom: 1px solid var(--line-subtle); }
+    }
+    @media (max-width: 720px) {
+      main { padding: 16px; }
+      .dashboard-grid, .connect-preview { grid-template-columns: 1fr; }
+      .grid-ai-core, .grid-current, .grid-model, .grid-quota, .grid-context, .grid-cost, .grid-events, .grid-connect { grid-column: 1; }
+      .hero-card { align-items: flex-start; flex-direction: column; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .event-row { grid-template-columns: 70px 96px 1fr; gap: 10px; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand-lockup"><span class="brand-mark" aria-hidden="true"></span><span>Claude Runtime<br>Monitor</span></div>
+      <nav class="sidebar-nav" aria-label="page navigation">
+        <a class="sidebar-item active" href="#overview"><span class="glyph"></span>概览</a>
+        <a class="sidebar-item" href="#features"><span class="glyph"></span>功能</a>
+        <a class="sidebar-item" href="#flow"><span class="glyph"></span>数据流</a>
+        <a class="sidebar-item" href="#start"><span class="glyph"></span>接入</a>
+        <a class="sidebar-item" href="https://github.com/uuuuytgg/claude-runtime-monitor"><span class="glyph"></span>GitHub</a>
+      </nav>
+      <div class="sidebar-footer"><span>Local-first</span><span>v0.1.0</span></div>
+    </aside>
+
+    <main>
+      <section id="overview" class="hero-card">
+        <div class="status-left"><span class="status-dot"></span><span>空闲</span></div>
+        <div class="status-meta"><span>已连接</span><span>更新 23:28:19</span><span>claude-sonnet-4-6</span></div>
+      </section>
+
+      <section class="dashboard-grid" aria-label="Claude Runtime Monitor preview">
+        <article class="panel grid-ai-core">
+          <div class="panel-header"><span class="panel-title">AI 核心</span><span><span class="status-dot" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>空闲</span></div>
+          <div class="pet-stage" aria-hidden="true">
+            <div class="pet-glow"></div>
+            <div class="pet">
+              <div class="ear left"></div><div class="ear right"></div><div class="pet-body"></div><div class="pet-head"></div>
+              <div class="eye left"></div><div class="eye right"></div><div class="blush left"></div><div class="blush right"></div><div class="mouth">ω</div>
+              <div class="hand left"></div><div class="hand right"></div>
+            </div>
+          </div>
+          <div class="state-strip"><span class="chip active">idle</span><span class="chip">waving</span><span class="chip">jumping</span><span class="chip">failed</span><span class="chip">running</span></div>
+          <div class="avatars"><span class="avatar-dot">C</span><span class="avatar-dot active"></span><span class="avatar-dot"></span><span class="avatar-dot"></span><span class="avatar-dot">+</span></div>
+          <p class="mono" style="text-align:center;margin-top:22px">claude-sonnet-4-6</p>
+        </article>
+
+        <article class="panel grid-current"><div class="panel-header"><span class="panel-title">当前状态</span><span class="soft-pill">运行正常</span></div><div class="display-title">本地运行中</div><p class="mono" style="margin-top:18px">idle</p></article>
+        <article class="panel grid-model"><span class="panel-title">模型信息</span><p class="label">当前模型</p><p class="mono">claude-sonnet-4-6</p><p class="label">项目</p><p class="mono">--</p><p class="label">会话 ID</p><p class="mono">local-session</p></article>
+        <article class="panel grid-quota"><div class="panel-header"><span class="panel-title">DeepSeek</span><span>▼</span></div><div class="quota-amount">¥7.20</div><p style="color:var(--brand-amber);font-size:13px">余额偏低</p></article>
+        <article class="panel grid-context"><span class="panel-title">上下文压力</span><div class="meter"><span></span></div><div class="display-title" style="font-size:32px">16</div><p class="mono">/ 1M tokens</p></article>
+        <article class="panel grid-cost"><span class="panel-title">成本</span><div class="cost">¥3.89</div><p class="label">会话累计</p><p class="mono">上次：¥0.00</p></article>
+        <article class="panel grid-events"><div class="panel-header"><span class="panel-title">事件时间线</span><span class="label">1 条记录</span></div><div class="event-list"><div class="event-row"><span class="mono">23:27:19</span><span class="event-badge">工具结束</span><span>请求完成 - claude-sonnet-4-6 · 上下文 16% · 会话 ¥3.89</span></div></div></article>
+      </section>
+
+      <section id="features" class="intro-section">
+        <h1>看见 Claude Code 的运行脉搏。</h1>
+        <p>Claude Runtime Monitor 不替代 Claude Code，而是在旁边建立一个本地观察面：状态、上下文、成本和 provider 余额都被整理成可读信号。敏感数据留在你的机器上。</p>
+        <div class="actions"><a class="button" href="https://github.com/uuuuytgg/claude-runtime-monitor">查看源码</a><a class="button secondary" href="#start">开始接入</a></div>
+        <div class="feature-grid">
+          <article class="feature"><strong>01</strong><h3>Runtime state</h3><p>从 hook、statusline 与进程检测中归纳 idle、thinking、editing、waiting_permission 等状态。</p></article>
+          <article class="feature"><strong>02</strong><h3>AI core pet</h3><p>AI 核心可以跟随状态变化，也支持导入 OpenPets 风格资源，让监控面板更有生命感。</p></article>
+          <article class="feature"><strong>03</strong><h3>Context pressure</h3><p>读取 cc-switch 请求日志，估算上下文占用，及时暴露长会话风险。</p></article>
+          <article class="feature"><strong>04</strong><h3>Quota view</h3><p>支持 DeepSeek 与通用 provider 余额检查，并保留最近快照。</p></article>
+        </div>
+      </section>
+
+      <section id="flow" class="intro-section">
+        <h2>清晰的数据流，少一点猜测。</h2>
+        <div class="flow">
+          <div><b>Claude Code</b><span>hooks 与 statusline 推送工具事件、模型、项目和上下文提示。</span></div>
+          <div><b>cc-switch</b><span>本机 SQLite 日志提供请求、tokens 与成本估算。</span></div>
+          <div><b>State engine</b><span>reducer 将输入归一成 MonitorSnapshot 与 RuntimeEvent。</span></div>
+          <div><b>Fastify</b><span>REST、WebSocket、SQLite 持久化和 provider 余额抓取。</span></div>
+          <div><b>Dashboard</b><span>React 控制台实时展示运行状态、额度、事件与成本。</span></div>
+        </div>
+      </section>
+
+      <section id="start" class="panel grid-connect">
+        <div class="connect-preview">
+          <div><span class="panel-title">接入 Claude Code</span><div class="display-title" style="margin-top:28px">让 Claude 把运行事件推到这里</div><p class="label" style="font-size:15px;line-height:1.8">在 Claude Code 的 settings 里接入 hook 和 statusline。服务器地址保持本机 4377，本机请求会自动通过内部鉴权。</p></div>
+          <pre><code>pnpm install
+cp .env.example .env
+pnpm dev
+
+node scripts/claude-hooks/claude-hook.js
+node scripts/claude-hooks/statusline.js</code></pre>
+        </div>
+      </section>
+
+      <footer><span>MIT Licensed. Not affiliated with Anthropic.</span><span>Local-first Claude Code observability.</span></footer>
+    </main>
+  </div>
+</body>
+</html>

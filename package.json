@@ -1,0 +1,19 @@
+{
+  "name": "claude-runtime-monitor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first Claude Code runtime monitor with DeepSeek quota tracking",
+  "scripts": {
+    "dev": "pnpm --filter @crm/web build && pnpm --filter @crm/server dev",
+    "dev:server": "pnpm --filter @crm/server dev",
+    "dev:web": "pnpm --filter @crm/web dev",
+    "build": "pnpm --filter @crm/web build && pnpm -r build",
+    "start": "pnpm --filter @crm/server start",
+    "test": "pnpm -r test",
+    "lint": "eslint . --ext .ts,.tsx",
+    "clean": "pnpm -r exec rm -rf dist node_modules"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

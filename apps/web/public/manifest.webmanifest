@@ -1,0 +1,10 @@
+{
+  "name": "Claude Runtime Monitor",
+  "short_name": "CRM",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#090b10",
+  "background_color": "#090b10",
+  "description": "Local-first Claude Code runtime monitor",
+  "icons": []
+}
