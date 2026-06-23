@@ -8,369 +8,551 @@
   <style>
     :root {
       color-scheme: light;
-      --brand-coral: #cc785c;
-      --brand-coral-active: #a85f48;
-      --brand-amber: #d99742;
-      --brand-teal: #3f9f78;
-      --brand-ink: #1f1b16;
-      --bg-root: #eee7db;
-      --bg-main: #f7f3ea;
-      --bg-panel: rgba(255, 253, 248, 0.82);
-      --bg-hover: rgba(204, 120, 92, 0.08);
-      --line-subtle: rgba(31, 27, 22, 0.08);
-      --line-visible: rgba(31, 27, 22, 0.14);
-      --line-active: rgba(204, 120, 92, 0.38);
-      --text-primary: #1f1b16;
-      --text-secondary: #665f55;
-      --text-muted: #8d8377;
-      --shadow-panel: 0 18px 60px rgba(49, 39, 28, 0.08);
-      --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-      --font-display: Georgia, "Times New Roman", "Songti SC", serif;
-      --font-sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-      --font-mono: "JetBrains Mono", "Cascadia Code", SFMono-Regular, Consolas, monospace;
+      --paper: #f7f1e7;
+      --paper-deep: #ece3d6;
+      --ink: #1f1b16;
+      --ink-soft: #514940;
+      --muted: #8b8175;
+      --line: rgba(31, 27, 22, 0.14);
+      --line-soft: rgba(31, 27, 22, 0.08);
+      --panel: rgba(255, 253, 248, 0.78);
+      --panel-solid: #fffaf2;
+      --coral: #cc785c;
+      --coral-deep: #a85f48;
+      --amber: #d99742;
+      --teal: #3f9f78;
+      --shadow: 0 28px 90px rgba(54, 43, 31, 0.16);
+      --display: Georgia, "Times New Roman", "Songti SC", serif;
+      --sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      --mono: "JetBrains Mono", "Cascadia Code", SFMono-Regular, Consolas, monospace;
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; background: var(--bg-root); }
+    html { scroll-behavior: smooth; background: var(--paper); }
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: var(--font-sans);
-      color: var(--text-primary);
+      color: var(--ink);
+      font-family: var(--sans);
       background:
-        radial-gradient(circle at 33% 0%, rgba(204, 120, 92, 0.12), transparent 28%),
-        linear-gradient(180deg, #fffaf2 0%, var(--bg-main) 38%, #efe7db 100%);
+        linear-gradient(180deg, rgba(255, 250, 242, 0.92), rgba(247, 241, 231, 0.9) 38%, #eee6da 100%);
       letter-spacing: 0;
+      overflow-x: hidden;
     }
     a { color: inherit; }
 
-    .shell {
+    .hero {
+      position: relative;
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
+      overflow: hidden;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--paper);
     }
-    .sidebar {
-      position: sticky;
+    #material-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 72% 16%, rgba(204, 120, 92, 0.16), transparent 34%),
+        radial-gradient(ellipse at 18% 8%, rgba(217, 151, 66, 0.12), transparent 30%),
+        linear-gradient(140deg, #fffaf2 0%, #f3ecdf 56%, #e9dfd0 100%);
+    }
+    .nav {
+      position: fixed;
       top: 0;
-      height: 100vh;
-      padding: 24px 12px;
-      border-right: 1px solid var(--line-subtle);
-      background: rgba(255, 253, 248, 0.62);
-      backdrop-filter: blur(20px);
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .brand-lockup {
+      left: 0;
+      right: 0;
+      height: 68px;
+      z-index: 20;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 0 8px;
-      font-size: 15px;
+      justify-content: space-between;
+      padding: 0 clamp(20px, 5vw, 72px);
+      border-bottom: 1px solid rgba(31, 27, 22, 0.08);
+      background: rgba(247, 241, 231, 0.72);
+      backdrop-filter: blur(22px);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.2;
     }
     .brand-mark {
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: repeating-conic-gradient(from 0deg, var(--brand-coral) 0deg 10deg, transparent 10deg 22deg);
-      box-shadow: 0 0 0 5px rgba(204, 120, 92, 0.08);
-      flex: 0 0 auto;
+      background: repeating-conic-gradient(from 0deg, var(--coral) 0deg 10deg, transparent 10deg 22deg);
+      box-shadow: 0 0 0 6px rgba(204, 120, 92, 0.08);
     }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-    .sidebar-item {
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 0 12px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .sidebar-item.active, .sidebar-item:hover {
-      color: var(--brand-coral-active);
-      background: var(--bg-hover);
-      border-color: rgba(204, 120, 92, 0.14);
-    }
-    .glyph { width: 8px; height: 8px; border: 1.5px solid currentColor; border-radius: 3px; opacity: 0.72; }
-    .sidebar-footer {
-      margin-top: auto;
-      display: flex;
-      justify-content: space-between;
-      padding: 12px;
-      border: 1px solid var(--line-subtle);
-      border-radius: 8px;
-      color: var(--text-muted);
-      font: 12px var(--font-mono);
-      background: rgba(255, 253, 248, 0.58);
-    }
-
-    main {
-      width: min(100%, 1480px);
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 30px;
-    }
-    .hero-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      min-height: 74px;
-      padding: 14px 18px;
-      background: rgba(255, 253, 248, 0.78);
-      border: 1px solid var(--line-active);
-      border-radius: 10px;
-      box-shadow: var(--inner-highlight), 0 12px 32px rgba(49, 39, 28, 0.06);
-      backdrop-filter: blur(18px);
-      margin-bottom: 26px;
-    }
-    .status-left, .status-meta { display: flex; align-items: center; gap: 12px; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand-teal); box-shadow: 0 0 0 5px rgba(63, 159, 120, 0.12); }
-    .status-meta { flex-wrap: wrap; justify-content: flex-end; color: var(--text-muted); font: 12px var(--font-mono); }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: minmax(280px, 1.1fr) minmax(210px, 0.8fr) minmax(210px, 0.8fr) minmax(210px, 0.8fr);
-      gap: 16px;
-      align-items: stretch;
-    }
-    .panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--line-subtle);
-      border-radius: 10px;
-      box-shadow: var(--inner-highlight), var(--shadow-panel);
-      padding: 22px;
-      min-width: 0;
-    }
-    .panel-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-    .soft-pill {
+    .nav-links { display: flex; align-items: center; gap: 22px; color: var(--ink-soft); font-size: 14px; }
+    .nav-links a { text-decoration: none; }
+    .repo-link {
       display: inline-flex;
       align-items: center;
-      min-height: 24px;
-      padding: 0 9px;
+      min-height: 40px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(63, 159, 120, 0.1);
-      color: #2f7d5d;
-      font-size: 12px;
-      font-weight: 600;
+      background: rgba(255, 253, 248, 0.62);
+      color: var(--ink);
+      font-weight: 700;
     }
-    .grid-ai-core { grid-column: 1 / 2; grid-row: 1 / 4; min-height: 656px; display: flex; flex-direction: column; }
-    .grid-current { grid-column: 2 / 4; min-height: 280px; }
-    .grid-model { grid-column: 4 / 5; min-height: 280px; }
-    .grid-quota { grid-column: 2 / 3; }
-    .grid-context { grid-column: 3 / 4; }
-    .grid-cost { grid-column: 4 / 5; }
-    .grid-events { grid-column: 2 / 5; }
-    .grid-connect { grid-column: 1 / 5; margin-top: 8px; }
 
-    .pet-stage {
+    .hero-content {
       position: relative;
-      flex: 1;
-      min-height: 290px;
+      z-index: 2;
+      min-height: 100vh;
       display: grid;
-      place-items: center;
+      grid-template-columns: minmax(0, 0.86fr) minmax(430px, 1.14fr);
+      gap: clamp(28px, 5vw, 72px);
+      align-items: center;
+      padding: 118px clamp(20px, 5vw, 72px) 54px;
     }
-    .pet-glow {
-      position: absolute;
-      width: 220px;
-      height: 150px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(204, 120, 92, 0.18), transparent 70%);
-      filter: blur(4px);
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      color: var(--coral-deep);
+      font: 700 12px/1 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    .pet {
+    .eyebrow::before { content: ""; width: 42px; height: 1px; background: var(--coral); }
+    h1 {
+      max-width: 700px;
+      margin: 0;
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: clamp(52px, 7.4vw, 112px);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+    h1 span { display: block; }
+    .lead {
+      max-width: 680px;
+      margin: 30px 0 0;
+      color: var(--ink-soft);
+      font-size: clamp(18px, 2vw, 22px);
+      line-height: 1.72;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+    .button {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      border-radius: 10px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fffaf2;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(31, 27, 22, 0.16); }
+    .button.secondary { background: rgba(255, 253, 248, 0.36); color: var(--ink); }
+    .metrics-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 44px; max-width: 660px; border: 1px solid var(--line-soft); background: var(--line-soft); }
+    .metric { min-height: 112px; padding: 18px; background: rgba(255, 253, 248, 0.58); backdrop-filter: blur(16px); }
+    .metric strong { display: block; font: 400 34px/1 var(--display); margin-bottom: 10px; }
+    .metric span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+    .product-stage {
       position: relative;
-      width: 190px;
-      height: 146px;
-      animation: idle 3.4s ease-in-out infinite;
+      min-height: 650px;
+      perspective: 1600px;
     }
-    .pet-body {
+    .product-window {
       position: absolute;
-      left: 62px;
-      top: 58px;
-      width: 68px;
-      height: 70px;
-      border: 4px solid #4a2720;
-      border-radius: 42% 42% 34% 34%;
-      background: #fffaf6;
+      right: 0;
+      top: 50%;
+      width: min(980px, 70vw);
+      transform: translateY(-50%) rotateX(8deg) rotateY(-14deg) rotateZ(1deg);
+      border-radius: 22px;
+      border: 1px solid rgba(31, 27, 22, 0.16);
+      background: rgba(255, 253, 248, 0.72);
+      box-shadow: 0 36px 120px rgba(43, 32, 23, 0.24);
+      overflow: hidden;
+      transition: transform 260ms ease;
+    }
+    .product-stage:hover .product-window { transform: translateY(-50%) rotateX(4deg) rotateY(-8deg) rotateZ(0deg); }
+    .product-window::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, rgba(255,255,255,0.28), transparent 30%, transparent 72%, rgba(204,120,92,0.12));
+      pointer-events: none;
       z-index: 2;
     }
-    .pet-head {
+    .product-window img { display: block; width: 100%; height: auto; filter: saturate(0.98) contrast(1.02); }
+    .floating-card {
       position: absolute;
-      left: 45px;
-      top: 30px;
-      width: 102px;
-      height: 70px;
-      border: 4px solid #4a2720;
-      border-radius: 48% 48% 42% 42%;
-      background: #fffaf6;
       z-index: 4;
+      border: 1px solid rgba(31, 27, 22, 0.12);
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.72);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+      color: var(--ink-soft);
+      font-size: 14px;
+      animation: drift 6s ease-in-out infinite;
     }
-    .ear { position: absolute; top: 42px; width: 72px; height: 34px; border: 4px solid #4a2720; background: #fffaf6; z-index: 1; }
-    .ear.left { left: 5px; border-radius: 70% 20% 50% 60%; transform: rotate(-10deg); }
-    .ear.right { right: 5px; border-radius: 20% 70% 60% 50%; transform: rotate(10deg); }
-    .eye { position: absolute; top: 58px; width: 8px; height: 18px; border-radius: 99px; background: #20c5ef; z-index: 5; }
-    .eye.left { left: 77px; } .eye.right { right: 77px; }
-    .blush { position: absolute; top: 76px; width: 24px; height: 15px; border-radius: 50%; background: rgba(255, 154, 178, 0.55); z-index: 5; }
-    .blush.left { left: 58px; } .blush.right { right: 58px; }
-    .mouth { position: absolute; left: 88px; top: 77px; z-index: 6; color: #4a2720; font: 700 15px var(--font-mono); }
-    .hand { position: absolute; top: 94px; width: 18px; height: 30px; border: 4px solid #4a2720; border-radius: 99px; background: #fffaf6; z-index: 6; }
-    .hand.left { left: 62px; transform: rotate(-18deg); } .hand.right { right: 62px; transform: rotate(18deg); }
-    .state-strip { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; margin: 10px 0 16px; }
-    .chip { padding: 2px 8px; border-radius: 4px; background: rgba(31, 27, 22, 0.06); color: var(--text-muted); font: 11px var(--font-mono); }
-    .chip.active { background: var(--brand-coral); color: #fff; }
-    .avatars { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line-subtle); }
-    .avatar-dot { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-subtle); display: grid; place-items: center; background: rgba(255,253,248,.65); font-family: var(--font-display); color: var(--text-secondary); }
-    .avatar-dot.active { border: 2px solid var(--brand-coral); background: repeating-conic-gradient(var(--brand-coral) 0deg 10deg, transparent 10deg 22deg); }
+    .floating-card strong { display: block; color: var(--ink); font-family: var(--display); font-size: 28px; font-weight: 400; margin-top: 6px; }
+    .card-context { left: 4%; bottom: 18%; }
+    .card-quota { right: 3%; top: 8%; animation-delay: -2s; }
+    .card-event { left: 14%; top: 12%; animation-delay: -4s; }
 
-    .display-title { margin-top: 10px; font: 400 38px/1.15 var(--font-display); }
-    .mono { font-family: var(--font-mono); color: var(--text-secondary); }
-    .label { color: var(--text-muted); font-size: 13px; margin: 16px 0 4px; }
-    .quota-amount { font: 400 54px/1 var(--font-display); color: var(--brand-amber); margin-top: 24px; }
-    .meter { width: 100%; height: 8px; border-radius: 999px; background: rgba(31,27,22,.1); overflow: hidden; margin: 26px 0 24px; }
-    .meter span { display: block; width: 16%; height: 100%; background: var(--brand-teal); border-radius: inherit; }
-    .cost { font: 400 34px/1 var(--font-display); margin-top: 22px; }
-    .event-list { border-top: 1px solid var(--line-subtle); }
-    .event-row { display: grid; grid-template-columns: 88px 132px 1fr; gap: 16px; align-items: center; min-height: 54px; border-bottom: 1px solid var(--line-subtle); color: var(--text-secondary); font-size: 14px; }
-    .event-badge { justify-self: start; padding: 3px 12px; border-radius: 999px; background: rgba(31,27,22,.07); color: var(--text-secondary); font-size: 12px; }
+    .section {
+      padding: 96px clamp(20px, 5vw, 72px);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .section h2 {
+      max-width: 960px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(42px, 6vw, 88px);
+      line-height: 0.98;
+      font-weight: 400;
+    }
+    .section-copy {
+      max-width: 780px;
+      margin: 24px 0 0;
+      color: var(--ink-soft);
+      font-size: 18px;
+      line-height: 1.75;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 44px;
+      border: 1px solid var(--line-soft);
+      background: var(--line-soft);
+    }
+    .feature {
+      min-height: 260px;
+      padding: 26px;
+      background: rgba(255, 253, 248, 0.68);
+    }
+    .feature .num { display: block; margin-bottom: 72px; color: var(--coral-deep); font: 700 12px/1 var(--mono); letter-spacing: 0.08em; }
+    .feature h3 { margin: 0 0 16px; font-size: 19px; }
+    .feature p { margin: 0; color: var(--ink-soft); line-height: 1.68; }
 
-    .intro-section { padding: 86px 0 24px; }
-    .intro-section h1, .intro-section h2 { max-width: 920px; margin: 0; font: 400 clamp(42px, 6vw, 88px)/.98 var(--font-display); }
-    .intro-section p { max-width: 760px; color: var(--text-secondary); font-size: 18px; line-height: 1.75; margin: 24px 0 0; }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .button { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid var(--brand-ink); background: var(--brand-ink); color: #fffaf2; text-decoration: none; font-weight: 700; border-radius: 8px; }
-    .button.secondary { background: transparent; color: var(--brand-ink); }
-    .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 34px; background: var(--line-subtle); border: 1px solid var(--line-subtle); }
-    .feature { min-height: 210px; padding: 24px; background: rgba(255, 253, 248, 0.7); }
-    .feature strong { display: block; margin-bottom: 48px; color: var(--brand-coral-active); font: 700 12px var(--font-mono); }
-    .feature h3 { margin: 0 0 14px; font-size: 18px; }
-    .feature p { margin: 0; color: var(--text-secondary); line-height: 1.65; font-size: 15px; }
-    .flow { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 34px; border: 1px solid var(--brand-ink); background: rgba(255,253,248,.72); }
-    .flow div { min-height: 146px; padding: 22px; border-right: 1px solid var(--line-subtle); }
-    .flow div:last-child { border-right: 0; }
-    .flow b { display: block; margin-bottom: 18px; }
-    .flow span { color: var(--text-secondary); line-height: 1.55; font-size: 14px; }
-    .connect-preview { display: grid; grid-template-columns: .85fr 1.15fr; gap: 22px; align-items: start; }
-    pre { margin: 0; overflow: auto; border: 1px solid var(--line-subtle); border-radius: 8px; background: rgba(31,27,22,.045); padding: 22px; font: 13px/1.7 var(--font-mono); color: var(--text-primary); }
-    footer { padding: 50px 0 20px; color: var(--text-muted); font-size: 13px; display: flex; justify-content: space-between; gap: 18px; }
+    .material-band {
+      position: relative;
+      overflow: hidden;
+      min-height: 620px;
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 42px;
+      align-items: center;
+      background: #1f1b16;
+      color: #fff7ed;
+    }
+    .material-band .section-copy { color: #cfc2b2; }
+    .material-panel {
+      min-height: 430px;
+      border: 1px solid rgba(255, 247, 237, 0.14);
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)),
+        rgba(255,255,255,0.035);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 34px 120px rgba(0,0,0,0.34);
+      padding: 28px;
+      display: grid;
+      align-content: space-between;
+    }
+    .signal-list { display: grid; gap: 14px; }
+    .signal {
+      display: grid;
+      grid-template-columns: 104px 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,247,237,0.12);
+      color: #d8ccbd;
+    }
+    .signal b { color: #fff7ed; font-weight: 600; }
+    .pill { padding: 4px 10px; border-radius: 999px; background: rgba(204,120,92,0.18); color: #f3b296; font: 700 11px/1 var(--mono); }
 
-    @keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-    @media (max-width: 1180px) {
-      .shell { grid-template-columns: 1fr; }
-      .sidebar { position: static; height: auto; padding: 18px 20px 0; border-right: 0; border-bottom: 1px solid var(--line-subtle); }
-      .sidebar-nav { flex-direction: row; overflow-x: auto; padding-bottom: 12px; }
-      .sidebar-footer { display: none; }
-      .dashboard-grid { grid-template-columns: 1fr 1fr; }
-      .grid-ai-core, .grid-current, .grid-events, .grid-connect { grid-column: 1 / 3; }
-      .grid-model, .grid-quota, .grid-context, .grid-cost { grid-column: auto; }
-      .feature-grid { grid-template-columns: repeat(2, 1fr); }
-      .flow { grid-template-columns: 1fr; }
-      .flow div { border-right: 0; border-bottom: 1px solid var(--line-subtle); }
+    .flow-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin-top: 44px; border: 1px solid var(--ink); background: rgba(255,253,248,0.70); }
+    .flow-grid div { min-height: 160px; padding: 24px; border-right: 1px solid var(--line-soft); }
+    .flow-grid div:last-child { border-right: 0; }
+    .flow-grid b { display: block; margin-bottom: 26px; }
+    .flow-grid span { color: var(--ink-soft); line-height: 1.6; font-size: 14px; }
+
+    .final-cta {
+      padding: 92px clamp(20px, 5vw, 72px) 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px;
+      align-items: end;
+    }
+    .final-cta h2 { margin: 0; font: 400 clamp(42px, 6vw, 84px)/0.98 var(--display); }
+    pre {
+      margin: 0;
+      overflow: auto;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      background: rgba(31,27,22,0.045);
+      padding: 22px;
+      color: var(--ink-soft);
+      font: 13px/1.7 var(--mono);
+    }
+    footer { padding: 0 clamp(20px, 5vw, 72px) 34px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 18px; }
+
+    @keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+    @media (max-width: 1100px) {
+      .hero-content { grid-template-columns: 1fr; }
+      .product-stage { min-height: 520px; }
+      .product-window { width: min(100%, 920px); right: auto; left: 0; transform: translateY(-50%) rotateX(5deg) rotateY(-7deg); }
+      .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .material-band, .final-cta { grid-template-columns: 1fr; }
+      .flow-grid { grid-template-columns: 1fr; }
+      .flow-grid div { border-right: 0; border-bottom: 1px solid var(--line-soft); }
     }
     @media (max-width: 720px) {
-      main { padding: 16px; }
-      .dashboard-grid, .connect-preview { grid-template-columns: 1fr; }
-      .grid-ai-core, .grid-current, .grid-model, .grid-quota, .grid-context, .grid-cost, .grid-events, .grid-connect { grid-column: 1; }
-      .hero-card { align-items: flex-start; flex-direction: column; }
-      .feature-grid { grid-template-columns: 1fr; }
-      .event-row { grid-template-columns: 70px 96px 1fr; gap: 10px; }
+      .nav { padding: 0 18px; }
+      .nav-links a:not(.repo-link) { display: none; }
+      .hero-content { padding-top: 96px; width: 100%; max-width: 100vw; overflow: hidden; }
+      h1 { font-size: 52px; max-width: calc(100vw - 40px); line-height: 0.98; }
+      .lead { max-width: calc(100vw - 40px); }
+      .metrics-row { max-width: calc(100vw - 40px); }
+      .metrics-row, .feature-grid { grid-template-columns: 1fr; }
+      .product-stage { min-height: 390px; width: calc(100vw - 40px); overflow: hidden; }
+      .product-window { width: 680px; max-width: none; left: 14%; }
+      .floating-card { display: none; }
+      .signal { grid-template-columns: 1fr; gap: 6px; }
       footer { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand-lockup"><span class="brand-mark" aria-hidden="true"></span><span>Claude Runtime<br>Monitor</span></div>
-      <nav class="sidebar-nav" aria-label="page navigation">
-        <a class="sidebar-item active" href="#overview"><span class="glyph"></span>概览</a>
-        <a class="sidebar-item" href="#features"><span class="glyph"></span>功能</a>
-        <a class="sidebar-item" href="#flow"><span class="glyph"></span>数据流</a>
-        <a class="sidebar-item" href="#start"><span class="glyph"></span>接入</a>
-        <a class="sidebar-item" href="https://github.com/uuuuytgg/claude-runtime-monitor"><span class="glyph"></span>GitHub</a>
-      </nav>
-      <div class="sidebar-footer"><span>Local-first</span><span>v0.1.0</span></div>
-    </aside>
+  <nav class="nav">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Claude Runtime<br>Monitor</span></div>
+    <div class="nav-links">
+      <a href="#product">Product</a>
+      <a href="#signals">Signals</a>
+      <a href="#flow">Architecture</a>
+      <a class="repo-link" href="https://github.com/uuuuytgg/claude-runtime-monitor">GitHub</a>
+    </div>
+  </nav>
 
-    <main>
-      <section id="overview" class="hero-card">
-        <div class="status-left"><span class="status-dot"></span><span>空闲</span></div>
-        <div class="status-meta"><span>已连接</span><span>更新 23:28:19</span><span>claude-sonnet-4-6</span></div>
-      </section>
-
-      <section class="dashboard-grid" aria-label="Claude Runtime Monitor preview">
-        <article class="panel grid-ai-core">
-          <div class="panel-header"><span class="panel-title">AI 核心</span><span><span class="status-dot" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>空闲</span></div>
-          <div class="pet-stage" aria-hidden="true">
-            <div class="pet-glow"></div>
-            <div class="pet">
-              <div class="ear left"></div><div class="ear right"></div><div class="pet-body"></div><div class="pet-head"></div>
-              <div class="eye left"></div><div class="eye right"></div><div class="blush left"></div><div class="blush right"></div><div class="mouth">ω</div>
-              <div class="hand left"></div><div class="hand right"></div>
-            </div>
-          </div>
-          <div class="state-strip"><span class="chip active">idle</span><span class="chip">waving</span><span class="chip">jumping</span><span class="chip">failed</span><span class="chip">running</span></div>
-          <div class="avatars"><span class="avatar-dot">C</span><span class="avatar-dot active"></span><span class="avatar-dot"></span><span class="avatar-dot"></span><span class="avatar-dot">+</span></div>
-          <p class="mono" style="text-align:center;margin-top:22px">claude-sonnet-4-6</p>
-        </article>
-
-        <article class="panel grid-current"><div class="panel-header"><span class="panel-title">当前状态</span><span class="soft-pill">运行正常</span></div><div class="display-title">本地运行中</div><p class="mono" style="margin-top:18px">idle</p></article>
-        <article class="panel grid-model"><span class="panel-title">模型信息</span><p class="label">当前模型</p><p class="mono">claude-sonnet-4-6</p><p class="label">项目</p><p class="mono">--</p><p class="label">会话 ID</p><p class="mono">local-session</p></article>
-        <article class="panel grid-quota"><div class="panel-header"><span class="panel-title">DeepSeek</span><span>▼</span></div><div class="quota-amount">¥7.20</div><p style="color:var(--brand-amber);font-size:13px">余额偏低</p></article>
-        <article class="panel grid-context"><span class="panel-title">上下文压力</span><div class="meter"><span></span></div><div class="display-title" style="font-size:32px">16</div><p class="mono">/ 1M tokens</p></article>
-        <article class="panel grid-cost"><span class="panel-title">成本</span><div class="cost">¥3.89</div><p class="label">会话累计</p><p class="mono">上次：¥0.00</p></article>
-        <article class="panel grid-events"><div class="panel-header"><span class="panel-title">事件时间线</span><span class="label">1 条记录</span></div><div class="event-list"><div class="event-row"><span class="mono">23:27:19</span><span class="event-badge">工具结束</span><span>请求完成 - claude-sonnet-4-6 · 上下文 16% · 会话 ¥3.89</span></div></div></article>
-      </section>
-
-      <section id="features" class="intro-section">
-        <h1>看见 Claude Code 的运行脉搏。</h1>
-        <p>Claude Runtime Monitor 不替代 Claude Code，而是在旁边建立一个本地观察面：状态、上下文、成本和 provider 余额都被整理成可读信号。敏感数据留在你的机器上。</p>
-        <div class="actions"><a class="button" href="https://github.com/uuuuytgg/claude-runtime-monitor">查看源码</a><a class="button secondary" href="#start">开始接入</a></div>
-        <div class="feature-grid">
-          <article class="feature"><strong>01</strong><h3>Runtime state</h3><p>从 hook、statusline 与进程检测中归纳 idle、thinking、editing、waiting_permission 等状态。</p></article>
-          <article class="feature"><strong>02</strong><h3>AI core pet</h3><p>AI 核心可以跟随状态变化，也支持导入 OpenPets 风格资源，让监控面板更有生命感。</p></article>
-          <article class="feature"><strong>03</strong><h3>Context pressure</h3><p>读取 cc-switch 请求日志，估算上下文占用，及时暴露长会话风险。</p></article>
-          <article class="feature"><strong>04</strong><h3>Quota view</h3><p>支持 DeepSeek 与通用 provider 余额检查，并保留最近快照。</p></article>
+  <header class="hero">
+    <canvas id="material-canvas" aria-hidden="true"></canvas>
+    <div class="hero-content">
+      <div>
+        <div class="eyebrow">local-first agent observability</div>
+        <h1><span>看见</span><span>Claude Code</span><span>的运行脉搏。</span></h1>
+        <p class="lead">Claude Runtime Monitor 把状态、上下文、成本和 provider 余额整理成一个本地优先的实时控制台。它不是又一个日志窗口，而是给 agent 工作流准备的产品化驾驶舱。</p>
+        <div class="hero-actions">
+          <a class="button" href="https://github.com/uuuuytgg/claude-runtime-monitor">查看源码</a>
+          <a class="button secondary" href="#product">查看产品展示</a>
         </div>
-      </section>
-
-      <section id="flow" class="intro-section">
-        <h2>清晰的数据流，少一点猜测。</h2>
-        <div class="flow">
-          <div><b>Claude Code</b><span>hooks 与 statusline 推送工具事件、模型、项目和上下文提示。</span></div>
-          <div><b>cc-switch</b><span>本机 SQLite 日志提供请求、tokens 与成本估算。</span></div>
-          <div><b>State engine</b><span>reducer 将输入归一成 MonitorSnapshot 与 RuntimeEvent。</span></div>
-          <div><b>Fastify</b><span>REST、WebSocket、SQLite 持久化和 provider 余额抓取。</span></div>
-          <div><b>Dashboard</b><span>React 控制台实时展示运行状态、额度、事件与成本。</span></div>
+        <div class="metrics-row">
+          <div class="metric"><strong>16%</strong><span>context pressure surfaced before the session gets brittle</span></div>
+          <div class="metric"><strong>live</strong><span>WebSocket runtime stream, not a static status dump</span></div>
+          <div class="metric"><strong>local</strong><span>tokens, keys and event history stay on your machine</span></div>
         </div>
-      </section>
+      </div>
+      <div class="product-stage" id="product">
+        <div class="floating-card card-event">runtime event<strong>tool_end</strong></div>
+        <div class="floating-card card-quota">provider balance<strong>¥7.20</strong></div>
+        <div class="floating-card card-context">context window<strong>1M tokens</strong></div>
+        <figure class="product-window">
+          <img src="assets/runtime-monitor-dashboard-warm-ui.png" alt="Claude Runtime Monitor warm dashboard UI showing AI core pet, context pressure, quota, model, cost, and event timeline." />
+        </figure>
+      </div>
+    </div>
+  </header>
 
-      <section id="start" class="panel grid-connect">
-        <div class="connect-preview">
-          <div><span class="panel-title">接入 Claude Code</span><div class="display-title" style="margin-top:28px">让 Claude 把运行事件推到这里</div><p class="label" style="font-size:15px;line-height:1.8">在 Claude Code 的 settings 里接入 hook 和 statusline。服务器地址保持本机 4377，本机请求会自动通过内部鉴权。</p></div>
-          <pre><code>pnpm install
+  <main>
+    <section class="section" id="signals">
+      <h2>不是截图陈列，是把杂乱运行信号做成产品语言。</h2>
+      <p class="section-copy">页面和产品本体使用同一套暖白纸面、细线边界、珊瑚强调和克制 serif 标题。实物面板承担可信度，Three.js 材质舞台承担“运行中”的气氛。</p>
+      <div class="feature-grid">
+        <article class="feature"><span class="num">01</span><h3>Runtime state</h3><p>从 hook、statusline、进程检测和 cc-switch 日志中归纳 idle、thinking、editing、waiting_permission 等状态。</p></article>
+        <article class="feature"><span class="num">02</span><h3>AI core pet</h3><p>AI 核心跟随运行状态变化，也支持导入 OpenPets 风格资源，让监控面板带一点活物感。</p></article>
+        <article class="feature"><span class="num">03</span><h3>Context pressure</h3><p>长会话真正危险的不是消息多，而是上下文压力看不见。这里把 token 压力抬到第一层。</p></article>
+        <article class="feature"><span class="num">04</span><h3>Provider economics</h3><p>DeepSeek、MiMo 或通用 provider 的额度和成本进入同一张运行图，避免跑到一半才发现余额不对。</p></article>
+      </div>
+    </section>
+
+    <section class="section material-band">
+      <div>
+        <h2>高级材质不是装饰，是状态感。</h2>
+        <p class="section-copy">首屏的折面材质、半透明监控层和珊瑚色脉冲线模拟 agent 运行时的信号路径：工具调用、上下文增长、余额刷新、用户确认。它们不会盖过产品，而是把产品的节奏托出来。</p>
+      </div>
+      <div class="material-panel">
+        <div class="signal-list">
+          <div class="signal"><span class="mono">23:27:19</span><b>请求完成</b><span class="pill">tool</span></div>
+          <div class="signal"><span class="mono">context</span><b>16% / 1M tokens</b><span class="pill">safe</span></div>
+          <div class="signal"><span class="mono">quota</span><b>DeepSeek ¥7.20</b><span class="pill">low</span></div>
+          <div class="signal"><span class="mono">model</span><b>claude-sonnet-4-6</b><span class="pill">live</span></div>
+        </div>
+        <p style="margin:34px 0 0;color:#cfc2b2;line-height:1.7">The monitor does not pretend to be the agent. It shows the agent's pressure, economy, and pace in a shape humans can act on.</p>
+      </div>
+    </section>
+
+    <section class="section" id="flow">
+      <h2>从本机事件到可读驾驶舱。</h2>
+      <div class="flow-grid">
+        <div><b>Claude Code</b><span>hooks 与 statusline 推送工具事件、模型、项目和上下文提示。</span></div>
+        <div><b>cc-switch</b><span>本机 SQLite 日志提供请求、tokens 与成本估算。</span></div>
+        <div><b>State engine</b><span>reducer 将输入归一成 MonitorSnapshot 与 RuntimeEvent。</span></div>
+        <div><b>Fastify</b><span>REST、WebSocket、SQLite 持久化和 provider 余额抓取。</span></div>
+        <div><b>Dashboard</b><span>React 控制台实时展示运行状态、额度、事件与成本。</span></div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div>
+        <h2>启动本地控制台。</h2>
+        <p class="section-copy">公开版本排除了 Harmony 客户端、服务卡片、签名材料、数据库和密钥。核心 Web + Server 监控链路可以直接跑起来。</p>
+        <div class="hero-actions"><a class="button" href="https://github.com/uuuuytgg/claude-runtime-monitor">Open on GitHub</a></div>
+      </div>
+      <pre><code>pnpm install
 cp .env.example .env
 pnpm dev
 
-node scripts/claude-hooks/claude-hook.js
-node scripts/claude-hooks/statusline.js</code></pre>
-        </div>
-      </section>
+# open
+http://127.0.0.1:4377</code></pre>
+    </section>
+  </main>
 
-      <footer><span>MIT Licensed. Not affiliated with Anthropic.</span><span>Local-first Claude Code observability.</span></footer>
-    </main>
-  </div>
+  <footer>
+    <span>MIT Licensed. Not affiliated with Anthropic.</span>
+    <span>Local-first Claude Code observability.</span>
+  </footer>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.160.1/build/three.module.js';
+
+    const canvas = document.getElementById('material-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+    camera.position.set(0, 0.45, 7.2);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const planeGeo = new THREE.PlaneGeometry(6.8, 4.2, 72, 42);
+    const pos = planeGeo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = Math.sin(x * 1.7) * 0.12 + Math.cos(y * 2.1) * 0.1 + Math.sin((x + y) * 1.15) * 0.09;
+      pos.setZ(i, z);
+    }
+    planeGeo.computeVertexNormals();
+
+    const paperMat = new THREE.MeshPhysicalMaterial({
+      color: 0xf6eee1,
+      roughness: 0.48,
+      metalness: 0.02,
+      clearcoat: 0.55,
+      clearcoatRoughness: 0.38,
+      transmission: 0.05,
+      side: THREE.DoubleSide,
+    });
+    const surface = new THREE.Mesh(planeGeo, paperMat);
+    surface.position.set(1.1, -0.06, -0.65);
+    surface.rotation.set(-0.22, -0.28, 0.03);
+    group.add(surface);
+
+    const wire = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({ color: 0x1f1b16, wireframe: true, transparent: true, opacity: 0.055 }));
+    wire.position.copy(surface.position);
+    wire.rotation.copy(surface.rotation);
+    group.add(wire);
+
+    const glassGeo = new THREE.BoxGeometry(2.2, 1.18, 0.035);
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      roughness: 0.12,
+      metalness: 0,
+      transmission: 0.62,
+      transparent: true,
+      opacity: 0.46,
+      clearcoat: 1,
+      clearcoatRoughness: 0.08,
+      ior: 1.42,
+    });
+    for (let i = 0; i < 5; i++) {
+      const pane = new THREE.Mesh(glassGeo, glassMat);
+      pane.position.set(-2.35 + i * 0.86, 0.2 + Math.sin(i) * 0.22, 0.46 + i * 0.035);
+      pane.rotation.set(0.14, -0.28, -0.07 + i * 0.018);
+      group.add(pane);
+    }
+
+    const curveMat = new THREE.MeshBasicMaterial({ color: 0xcc785c, transparent: true, opacity: 0.62 });
+    const tealMat = new THREE.MeshBasicMaterial({ color: 0x3f9f78, transparent: true, opacity: 0.42 });
+    function addCurve(points, mat, radius) {
+      const curve = new THREE.CatmullRomCurve3(points);
+      const geo = new THREE.TubeGeometry(curve, 96, radius, 10, false);
+      const mesh = new THREE.Mesh(geo, mat);
+      group.add(mesh);
+      return mesh;
+    }
+    const signalA = addCurve([
+      new THREE.Vector3(-3.2, -1.1, 0.65), new THREE.Vector3(-1.7, 0.65, 0.82), new THREE.Vector3(0.35, -0.2, 1.0), new THREE.Vector3(2.6, 0.95, 0.72)
+    ], curveMat, 0.014);
+    const signalB = addCurve([
+      new THREE.Vector3(-2.9, 1.0, 0.58), new THREE.Vector3(-0.8, -0.25, 1.05), new THREE.Vector3(1.6, 0.18, 0.84), new THREE.Vector3(3.0, -0.92, 0.7)
+    ], tealMat, 0.01);
+
+    const key = new THREE.DirectionalLight(0xfff0df, 2.8);
+    key.position.set(-3, 4, 5);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xcc785c, 1.3);
+    fill.position.set(4, 1.5, 3);
+    scene.add(fill);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+
+    const mouse = new THREE.Vector2(0, 0);
+    window.addEventListener('pointermove', (event) => {
+      mouse.x = (event.clientX / window.innerWidth - 0.5) * 2;
+      mouse.y = (event.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    function resize() {
+      const w = canvas.clientWidth || window.innerWidth;
+      const h = canvas.clientHeight || window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const clock = new THREE.Clock();
+    function animate() {
+      const t = clock.getElapsedTime();
+      group.rotation.y = Math.sin(t * 0.22) * 0.08 + mouse.x * 0.035;
+      group.rotation.x = Math.cos(t * 0.18) * 0.035 - mouse.y * 0.025;
+      surface.position.z = -0.65 + Math.sin(t * 0.7) * 0.035;
+      wire.position.z = surface.position.z + 0.006;
+      signalA.material.opacity = 0.44 + Math.sin(t * 1.8) * 0.16;
+      signalB.material.opacity = 0.32 + Math.cos(t * 1.45) * 0.12;
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
+
+
+
+
+
